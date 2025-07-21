@@ -435,8 +435,8 @@ class ChargebeeAIAssistant {
 
         try {
             const searchResults = await this.searchChargebeeInfo(query);
-            const aiResponse = await this.getAIResponse(query, searchResults);
-            this.displayResults(aiResponse, query);
+            const aiResponseData = await this.getAIResponse(query, searchResults);
+            this.displayResults(aiResponseData, query);
         } catch (error) {
             console.error('Search error:', error);
             this.showStatus('Search failed. Please try again.', 'error');
@@ -489,10 +489,16 @@ class ChargebeeAIAssistant {
                 throw new Error(data.error.message);
             }
 
-            return data.choices[0].message.content.trim();
+            return {
+                content: data.choices[0].message.content.trim(),
+                relevantLink: data.relevant_link || null
+            };
         } catch (error) {
             console.error('SearchAPI error:', error);
-            return this.getFallbackResponse(query, context);
+            return {
+                content: this.getFallbackResponse(query, context),
+                relevantLink: null
+            };
         }
     }
 
@@ -607,21 +613,22 @@ For specific information about your question, I recommend visiting chargebee.com
             }
         }
 
-        // If no specific match, return the general search page
-        return `https://www.chargebee.com/search/?q=${encodeURIComponent(query)}`;
+        // If no specific match, return the main Chargebee website
+        return 'https://www.chargebee.com/';
     }
 
-    displayResults(aiResponse, query) {
+    displayResults(aiResponseData, query) {
         this.statusContainer.innerHTML = '';
         
         const resultCard = document.createElement('div');
         resultCard.className = 'result-card';
         
-        const targetedLink = this.getTargetedChargebeeLink(query);
+        // Use the relevant link from SearchAPI if available, otherwise fall back to keyword-based mapping
+        const targetedLink = aiResponseData.relevantLink || this.getTargetedChargebeeLink(query);
         
         resultCard.innerHTML = `
             <div class="result-title">AI Assistant Response</div>
-            <div class="result-content">${aiResponse}</div>
+            <div class="result-content">${aiResponseData.content}</div>
             <a href="${targetedLink}" 
                target="_blank" 
                class="learn-more-btn">
