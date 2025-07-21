@@ -54,9 +54,16 @@ module.exports = async (req, res) => {
 
     // Create a comprehensive answer based on search results
     let answer = '';
+    let relevantLink = null;
+    
     if (formattedResults.length > 0) {
       const snippets = formattedResults.slice(0, 3).map(r => r.snippet).join(' ');
       answer = `Based on the latest information about Chargebee: ${snippets}`;
+      
+      // Get the most relevant Chargebee link from search results
+      relevantLink = formattedResults.find(result => 
+        result.link && result.link.includes('chargebee.com')
+      )?.link || null;
       
       // Add some context based on the query
       const queryLower = query.toLowerCase();
@@ -69,7 +76,7 @@ module.exports = async (req, res) => {
       }
     } else {
       // Fallback response when no search results
-      answer = this.getFallbackAnswer(query);
+      answer = getFallbackAnswer(query);
     }
 
     // Return in OpenAI-compatible format for the frontend
@@ -79,7 +86,8 @@ module.exports = async (req, res) => {
           content: answer
         }
       }],
-      search_results: formattedResults
+      search_results: formattedResults,
+      relevant_link: relevantLink // Add the most relevant Chargebee link
     };
 
     res.status(200).json(response);
