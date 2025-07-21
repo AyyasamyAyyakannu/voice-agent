@@ -549,16 +549,80 @@ Key capabilities include:
 For specific information about your question, I recommend visiting chargebee.com or contacting their support team for detailed assistance.`;
     }
 
+    getTargetedChargebeeLink(query) {
+        const queryLower = query.toLowerCase();
+        
+        const linkMappings = {
+            pricing: 'https://www.chargebee.com/pricing/',
+            'free trial': 'https://www.chargebee.com/trial/',
+            trial: 'https://www.chargebee.com/trial/',
+            features: 'https://www.chargebee.com/features/',
+            integration: 'https://www.chargebee.com/integrations/',
+            integrations: 'https://www.chargebee.com/integrations/',
+            api: 'https://www.chargebee.com/docs/api/',
+            'api documentation': 'https://www.chargebee.com/docs/api/',
+            documentation: 'https://www.chargebee.com/docs/',
+            docs: 'https://www.chargebee.com/docs/',
+            support: 'https://www.chargebee.com/contact/',
+            contact: 'https://www.chargebee.com/contact/',
+            security: 'https://www.chargebee.com/security/',
+            compliance: 'https://www.chargebee.com/security/',
+            migration: 'https://www.chargebee.com/migration/',
+            migrate: 'https://www.chargebee.com/migration/',
+            billing: 'https://www.chargebee.com/recurring-billing-software/',
+            'subscription management': 'https://www.chargebee.com/subscription-management/',
+            subscription: 'https://www.chargebee.com/subscription-management/',
+            analytics: 'https://www.chargebee.com/subscription-analytics/',
+            reporting: 'https://www.chargebee.com/subscription-analytics/',
+            revenue: 'https://www.chargebee.com/revenue-recognition/',
+            'revenue recognition': 'https://www.chargebee.com/revenue-recognition/',
+            dunning: 'https://www.chargebee.com/dunning-management/',
+            'dunning management': 'https://www.chargebee.com/dunning-management/',
+            tax: 'https://www.chargebee.com/tax-management/',
+            taxes: 'https://www.chargebee.com/tax-management/',
+            'payment gateway': 'https://www.chargebee.com/payment-gateways/',
+            payments: 'https://www.chargebee.com/payment-gateways/',
+            gateway: 'https://www.chargebee.com/payment-gateways/',
+            stripe: 'https://www.chargebee.com/integrations/stripe/',
+            paypal: 'https://www.chargebee.com/integrations/paypal/',
+            salesforce: 'https://www.chargebee.com/integrations/salesforce/',
+            hubspot: 'https://www.chargebee.com/integrations/hubspot/',
+            quickbooks: 'https://www.chargebee.com/integrations/quickbooks/',
+            slack: 'https://www.chargebee.com/integrations/slack/',
+            'customer portal': 'https://www.chargebee.com/customer-portal/',
+            portal: 'https://www.chargebee.com/customer-portal/',
+            invoice: 'https://www.chargebee.com/recurring-billing-software/',
+            invoicing: 'https://www.chargebee.com/recurring-billing-software/',
+            webhook: 'https://www.chargebee.com/docs/webhooks.html',
+            webhooks: 'https://www.chargebee.com/docs/webhooks.html',
+            demo: 'https://www.chargebee.com/schedule-a-demo/',
+            'schedule demo': 'https://www.chargebee.com/schedule-a-demo/',
+            'book demo': 'https://www.chargebee.com/schedule-a-demo/',
+        };
+
+        // Find the best matching link
+        for (const [keyword, url] of Object.entries(linkMappings)) {
+            if (queryLower.includes(keyword)) {
+                return url;
+            }
+        }
+
+        // If no specific match, return the general search page
+        return `https://www.chargebee.com/search/?q=${encodeURIComponent(query)}`;
+    }
+
     displayResults(aiResponse, query) {
         this.statusContainer.innerHTML = '';
         
         const resultCard = document.createElement('div');
         resultCard.className = 'result-card';
         
+        const targetedLink = this.getTargetedChargebeeLink(query);
+        
         resultCard.innerHTML = `
             <div class="result-title">AI Assistant Response</div>
             <div class="result-content">${aiResponse}</div>
-            <a href="https://www.chargebee.com/search/?q=${encodeURIComponent(query)}" 
+            <a href="${targetedLink}" 
                target="_blank" 
                class="learn-more-btn">
                Learn More on Chargebee →
@@ -567,18 +631,58 @@ For specific information about your question, I recommend visiting chargebee.com
 
         this.resultsContainer.appendChild(resultCard);
 
+        // Add contextual helpful resources
+        const contextualLinks = this.getContextualResources(query);
         const linksCard = document.createElement('div');
         linksCard.className = 'result-card';
         linksCard.innerHTML = `
             <div class="result-title">Helpful Resources</div>
             <div class="result-content">
-                <a href="https://www.chargebee.com/docs/" target="_blank" class="learn-more-btn" style="margin-right: 10px; margin-bottom: 10px;">Documentation</a>
-                <a href="https://www.chargebee.com/trial/" target="_blank" class="learn-more-btn" style="margin-right: 10px; margin-bottom: 10px;">Start Free Trial</a>
-                <a href="https://www.chargebee.com/contact/" target="_blank" class="learn-more-btn" style="margin-bottom: 10px;">Contact Support</a>
+                ${contextualLinks.map(link => 
+                    `<a href="${link.url}" target="_blank" class="learn-more-btn" style="margin-right: 10px; margin-bottom: 10px;">${link.text}</a>`
+                ).join('')}
             </div>
         `;
         
         this.resultsContainer.appendChild(linksCard);
+    }
+
+    getContextualResources(query) {
+        const queryLower = query.toLowerCase();
+        const defaultLinks = [
+            { text: 'Start Free Trial', url: 'https://www.chargebee.com/trial/' },
+            { text: 'Documentation', url: 'https://www.chargebee.com/docs/' },
+            { text: 'Contact Support', url: 'https://www.chargebee.com/contact/' }
+        ];
+
+        // Add context-specific resources based on query
+        if (queryLower.includes('pricing') || queryLower.includes('cost') || queryLower.includes('price')) {
+            return [
+                { text: 'View Pricing Plans', url: 'https://www.chargebee.com/pricing/' },
+                { text: 'Start Free Trial', url: 'https://www.chargebee.com/trial/' },
+                { text: 'Schedule Demo', url: 'https://www.chargebee.com/schedule-a-demo/' }
+            ];
+        } else if (queryLower.includes('integration') || queryLower.includes('api') || queryLower.includes('webhook')) {
+            return [
+                { text: 'API Documentation', url: 'https://www.chargebee.com/docs/api/' },
+                { text: 'View Integrations', url: 'https://www.chargebee.com/integrations/' },
+                { text: 'Developer Resources', url: 'https://www.chargebee.com/docs/' }
+            ];
+        } else if (queryLower.includes('security') || queryLower.includes('compliance')) {
+            return [
+                { text: 'Security Overview', url: 'https://www.chargebee.com/security/' },
+                { text: 'Compliance Details', url: 'https://www.chargebee.com/security/' },
+                { text: 'Contact Support', url: 'https://www.chargebee.com/contact/' }
+            ];
+        } else if (queryLower.includes('migration') || queryLower.includes('migrate')) {
+            return [
+                { text: 'Migration Guide', url: 'https://www.chargebee.com/migration/' },
+                { text: 'Contact Migration Team', url: 'https://www.chargebee.com/contact/' },
+                { text: 'Schedule Demo', url: 'https://www.chargebee.com/schedule-a-demo/' }
+            ];
+        }
+
+        return defaultLinks;
     }
 }
 
