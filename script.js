@@ -425,6 +425,12 @@ class ChargebeeAIAssistant {
             return;
         }
 
+        // Check if query is Chargebee-related
+        if (!this.isChargebeeRelated(query)) {
+            this.showStatus('I can only help with questions about Chargebee. Please ask something related to Chargebee subscription management, billing, pricing, features, integrations, etc.', 'error');
+            return;
+        }
+
         this.hideSuggestions();
         this.resultsSection.classList.add('show');
         this.loadingDiv.style.display = 'block';
@@ -690,6 +696,73 @@ For specific information about your question, I recommend visiting chargebee.com
         }
 
         return defaultLinks;
+    }
+
+    isChargebeeRelated(query) {
+        const queryLower = query.toLowerCase();
+        
+        // Direct Chargebee mentions
+        if (queryLower.includes('chargebee') || queryLower.includes('charge bee')) {
+            return true;
+        }
+        
+        // Subscription billing and management related terms
+        const chargebeeTerms = [
+            // Core business terms
+            'subscription', 'billing', 'invoice', 'invoicing', 'recurring', 'payment', 'revenue',
+            'dunning', 'trial', 'pricing', 'plan', 'customer portal', 'subscription management',
+            'recurring billing', 'subscription billing', 'revenue recognition', 'saas billing',
+            
+            // Payment and gateway terms
+            'payment gateway', 'stripe', 'paypal', 'razorpay', 'gateway integration',
+            'payment processing', 'credit card', 'payment method',
+            
+            // Integration and API terms
+            'api', 'webhook', 'integration', 'salesforce', 'hubspot', 'quickbooks', 'slack',
+            'xero', 'integration with', 'rest api', 'sdk',
+            
+            // Business process terms
+            'tax management', 'tax compliance', 'dunning management', 'customer lifecycle',
+            'subscription analytics', 'revenue analytics', 'mrr', 'arr', 'churn',
+            'customer retention', 'subscription metrics',
+            
+            // Support and migration terms
+            'migration', 'migrate from', 'customer support', 'implementation',
+            'onboarding', 'setup', 'configuration',
+            
+            // Security and compliance
+            'security', 'compliance', 'pci dss', 'soc 2', 'data protection',
+            'encryption', 'audit',
+            
+            // Features and capabilities
+            'automated billing', 'proration', 'metered billing', 'usage based billing',
+            'tiered pricing', 'add-ons', 'coupons', 'discounts', 'subscription lifecycle'
+        ];
+        
+        // Check if query contains any Chargebee-related terms
+        const hasChargebeeTerms = chargebeeTerms.some(term => queryLower.includes(term));
+        
+        // Additional context-based checks
+        const businessQuestions = [
+            'how to', 'what is', 'how does', 'can i', 'do you', 'does it', 'is there',
+            'how much', 'pricing', 'cost', 'free trial', 'demo', 'features', 'capabilities'
+        ];
+        
+        const startsWithBusinessQuestion = businessQuestions.some(question => 
+            queryLower.startsWith(question)
+        );
+        
+        // If it starts with a business question and has Chargebee terms, it's likely related
+        if (startsWithBusinessQuestion && hasChargebeeTerms) {
+            return true;
+        }
+        
+        // Direct feature/service queries that could be Chargebee related
+        if (hasChargebeeTerms) {
+            return true;
+        }
+        
+        return false;
     }
 }
 
