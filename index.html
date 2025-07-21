@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chargebee AI Voice Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Demo Website Content -->
+    <div class="demo-content">
+        <div class="demo-header">
+            <h1>Chargebee</h1>
+            <p>Subscription Management & Recurring Billing Platform</p>
+        </div>
+        <div style="height: 80vh; display: flex; align-items: center; justify-content: center;">
+            <p style="font-size: 1.2rem; color: #666; text-align: center;">
+                Click the AI assistant button in the bottom right corner to try the voice search feature!<br>
+                <small>Ask questions about Chargebee's features, pricing, integrations, or anything else.</small>
+            </p>
+        </div>
+    </div>
+
+    <!-- Voice Assistant Button -->
+    <button class="voice-assistant-btn" id="voiceAssistantBtn">
+        <svg class="mic-icon" viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+        </svg>
+    </button>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <button class="close-btn" id="closeBtn">&times;</button>
+                <h2>Chargebee AI Assistant</h2>
+                <p>Ask me anything about Chargebee!</p>
+            </div>
+            <div class="modal-content">
+                <!-- Voice Section -->
+                <div class="voice-section">
+                    <div class="voice-visualizer" id="voiceVisualizer">
+                        <button class="voice-btn" id="voiceBtn">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <p id="voiceStatus">Click the microphone to start speaking</p>
+                </div>
+
+                <!-- Input Section -->
+                <div class="input-section">
+                    <div style="position: relative;">
+                        <input type="text" class="search-input" id="searchInput" placeholder="Or type your question here...">
+                        <div class="suggestions" id="suggestions"></div>
+                    </div>
+                    <button class="search-btn" id="searchBtn">Search</button>
+                </div>
+
+                <!-- Status Messages -->
+                <div id="statusContainer"></div>
+
+                <!-- Results Section -->
+                <div class="results-section" id="resultsSection">
+                    <div class="loading" id="loadingDiv">
+                        <div class="loading-spinner"></div>
+                        <p>Searching for information...</p>
+                    </div>
+                    <div id="resultsContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
