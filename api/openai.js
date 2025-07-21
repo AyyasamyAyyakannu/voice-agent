@@ -30,8 +30,8 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'SearchAPI key not configured' });
     }
 
-    // Search for Chargebee-related information
-    const searchResponse = await fetch(`https://www.searchapi.io/api/v1/search?engine=google&q=${encodeURIComponent(query + ' site:chargebee.com OR chargebee')}&api_key=${searchApiKey}&location=${location}&num=5`);
+    // Search for Chargebee-related information only
+    const searchResponse = await fetch(`https://www.searchapi.io/api/v1/search?engine=google&q=${encodeURIComponent(query + ' site:chargebee.com')}&api_key=${searchApiKey}&location=${location}&num=5`);
 
     if (!searchResponse.ok) {
       const errorData = await searchResponse.json().catch(() => ({}));
@@ -75,8 +75,13 @@ module.exports = async (req, res) => {
         answer += ' Chargebee integrates with numerous popular business tools and payment gateways to streamline your workflow.';
       }
     } else {
-      // Fallback response when no search results
-      answer = getFallbackAnswer(query);
+      // Fallback response when no search results - check if query is actually Chargebee related
+      const isChargebeeQuery = checkChargebeeRelevance(query);
+      if (isChargebeeQuery) {
+        answer = getFallbackAnswer(query);
+      } else {
+        answer = "I can only provide information about Chargebee subscription billing and management platform. Please ask questions related to Chargebee's features, pricing, integrations, API, or subscription management capabilities.";
+      }
     }
 
     // Return in OpenAI-compatible format for the frontend
@@ -95,6 +100,30 @@ module.exports = async (req, res) => {
   } catch (error) {
     console.error('API route error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+
+  // Check if query is Chargebee-related
+  function checkChargebeeRelevance(query) {
+    const queryLower = query.toLowerCase();
+    
+    // Direct Chargebee mentions
+    if (queryLower.includes('chargebee') || queryLower.includes('charge bee')) {
+      return true;
+    }
+    
+    // Subscription billing and management related terms
+    const chargebeeTerms = [
+      'subscription', 'billing', 'invoice', 'invoicing', 'recurring', 'payment', 'revenue',
+      'dunning', 'trial', 'pricing', 'plan', 'customer portal', 'subscription management',
+      'recurring billing', 'subscription billing', 'revenue recognition', 'saas billing',
+      'payment gateway', 'stripe', 'paypal', 'razorpay', 'gateway integration',
+      'api', 'webhook', 'integration', 'salesforce', 'hubspot', 'quickbooks', 'slack',
+      'tax management', 'subscription analytics', 'mrr', 'arr', 'churn',
+      'migration', 'customer support', 'security', 'compliance', 'pci dss',
+      'automated billing', 'proration', 'metered billing', 'usage based billing'
+    ];
+    
+    return chargebeeTerms.some(term => queryLower.includes(term));
   }
 
   // Fallback answer method
